@@ -1,5 +1,6 @@
-var EarthRadius = 6371000;
-var ratio = 100.0 / 10000;
+var Utils = require("./TopoUtils.js");
+var ratio = Utils.ratio;
+var EarthRadius = Utils.EarthRadius;
 
 var readerloader = require("./datareader");
 //var THREE = require("three.js")
@@ -37,13 +38,14 @@ var maptileloader = function () {
     return loader;
 };
 var heightmaploader = function () {
+    var size = 6;
     var loader = new dataloader("network", function (param) {
-            return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/4`;
+            return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`;
         }, "arraybuffer", function (arrayBuffer) {
-            console.log(arrayBuffer);
+            //console.log(arrayBuffer);
             var byteArray = new Int16Array(arrayBuffer);
-            var w = Math.pow(2, 4);
-            var data = new Float32Array(w * w);
+            var w = Math.pow(2, size) + 1;
+            var data = new Float32Array(w  * w);
             for (var i = 0; i < w; i++) {
                 for (var j = 0; j < w; j++) {
                     data[(i * w + j)] = byteArray[(i * w + j)] * ratio;//byteArray[w-i+(w-j)*w];

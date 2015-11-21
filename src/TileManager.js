@@ -1,11 +1,11 @@
-var EarthRadius = 6371000;
-var ratio = 100.0 / 10000;
-
 var Utils = require("./TopoUtils.js");
 var long2tile = Utils.long2tile;
 var lat2tile = Utils.lat2tile;
 var title2lat = Utils.title2lat;
 var title2long = Utils.title2long;
+var ratio = Utils.ratio;
+var EarthRadius = Utils.EarthRadius;
+
 function tileID(param) {
     var x = param.x;
     var y = param.y;
@@ -58,9 +58,13 @@ function Map2tile(param, map_texture, height_texture = 0) {
     var _LonEnd = title2long(x + 1, zoom);
     var _LatStart = title2lat(y, zoom);
     var _LatEnd = title2lat(y + 1, zoom);
+    if (height_texture != 0)
+        return SphereTitleWithHeight(_LatStart, _LatEnd, _LonStart, _LonEnd
+            , 64, 64, height_texture, true, map_texture);
+    else
+        return SphereTitleWithHeight(_LatStart, _LatEnd, _LonStart, _LonEnd
+            , 16, 16, height_texture, true, map_texture);
 
-    return SphereTitleWithHeight(_LatStart, _LatEnd, _LonStart, _LonEnd
-        , 32, 32, height_texture, true, map_texture);
 }
 
 var dataloader = require("./maploader.js");
@@ -80,6 +84,7 @@ tilemanager.prototype.constructor = tilemanager;
 
 //Loading tile list and put them into global scene
 tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) {
+    console.log(param_list);
     let obj = this;
     var res = {};
     this.maploader.load_data_list(
@@ -88,11 +93,10 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
             for (let iter of map_list) {
                 let param_map = iter.param;
                 let map_value = iter.data;
-                if (param_map.zoom >= obj.enable_height)
-                {
-                    obj.heightloader.load_data(iter.param,function (height_texture){
-                        console.log(height_texture);
-                        var mesh = res[tileID(param_map)] = Map2tile(param_map, map_value,height_texture);
+                if (param_map.zoom >= obj.enable_height) {
+                    obj.heightloader.load_data(iter.param, function (height_texture) {
+                        //console.log(height_texture);
+                        var mesh = res[tileID(param_map)] = Map2tile(param_map, map_value, height_texture);
                         obj.global_scene.add(mesh);
                         obj.cached_map_set[tileID(param_map)] = mesh;
                         obj.global_map_set[tileID(param_map)] = mesh;
@@ -156,7 +160,7 @@ tilemanager.prototype.find_mini_cover = function (param) {
         console.log(tileID(tmp_param));
         if (tileID(tmp_param) in this.global_map_set) {
             console.log("find cover!!!");
-            console.log(tmp_param);
+            //console.log(tmp_param);
             var tile = this.global_map_set[tileID(tmp_param)];
             tile.material.wireframe = true;
             tile.material.needsUpdate = true;
@@ -174,25 +178,25 @@ tilemanager.prototype.gen_replace_list = function (param_tar, param_ori) {
         var rate = Math.pow(2, param_tar.zoom - zoom);
         var x = Math.floor(param_tar.x / rate);
         var y = Math.floor(param_tar.y / rate);
-        var dx = -1 , dy = -1;
+        var dx = -1, dy = -1;
         if (x % 2 == 0)
-        dx = 1;
+            dx = 1;
         if (y % 2 == 0)
-        dy = 1;
+            dy = 1;
         param_list.push({
             x: x + dx,
             y: y,
-            zoom : zoom
+            zoom: zoom
         });
         param_list.push({
             x: x + dx,
             y: y + dy,
-            zoom : zoom
+            zoom: zoom
         });
         param_list.push({
             x: x,
             y: y + dy,
-            zoom : zoom
+            zoom: zoom
         });
     }
     param_list.push({
@@ -211,7 +215,7 @@ tilemanager.prototype.find_replace_cover = function (param) {
     else {
         var param_list = this.gen_replace_list(param, k.param);
         this.load_global_tile_list(param_list, function (data) {
-            console.log(k.tile);
+            //console.log(k.tile);
             obj.global_scene.remove(k.tile);
         });
     }

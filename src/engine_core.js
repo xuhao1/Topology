@@ -1,6 +1,3 @@
-var EarthRadius = 6371000;
-var ratio = 100.0 / 10000;
-var max_cam_height = 30000;
 let tilemanger = require("./TileManager.js");
 var Utils = require("./TopoUtils.js");
 var long2tile = Utils.long2tile;
@@ -8,6 +5,10 @@ var lat2tile = Utils.lat2tile;
 var title2lat = Utils.title2lat;
 var title2long = Utils.title2long;
 var XYZ2LatLon = Utils.XYZ2LatLon;
+var ratio = Utils.ratio;
+var EarthRadius = Utils.EarthRadius;
+var max_cam_height = Utils.max_cam_height;
+var min_cam_height = Utils.min_cam_height;
 
 //Height should switch 30000 m
 class CameraController {
@@ -16,7 +17,8 @@ class CameraController {
         this.phi = 0;
         this.camera = camera;
         //this.camera.position.x = 0;
-        this.height = ratio * EarthRadius * 2;
+        this.camera.far = ratio * EarthRadius * 10;
+        this.height = EarthRadius * 2;
         this.wx = 0;
         this.wy = 0;
         this.raycaster = new THREE.Raycaster();
@@ -36,7 +38,7 @@ class CameraController {
         this.camera.up.z = 1;
         this.wx = this.wx * 0.93;
         this.wy = this.wy * 0.93;
-        this.camera.lookAt(new THREE.Vector3(0, 0, this.lookatz ));
+        this.camera.lookAt(new THREE.Vector3(0, 0, this.lookatz));
 
     }
 
@@ -51,8 +53,11 @@ class CameraController {
     zoom(k) {
         this.height = this.height * (1 + 0.1 * k);
         console.log(this.height);
-        if (this.height < max_cam_height) {
-            //this.height = max_cam_height;
+        if (this.height < min_cam_height) {
+            this.height = min_cam_height;
+        }
+        if (this.height > max_cam_height) {
+            this.height = max_cam_height;
         }
         this.needUpdateMap();
     }
@@ -67,10 +72,10 @@ class CameraController {
         this.needUpdateMap();
     }
 
-    getMouseLatLon(x,y) {
+    getMouseLatLon(x, y) {
         var camera = this.camera;
         var _x = x / this.engine.w * 2 - 1;
-        var _y = - ( y / this.engine.h * 2 - 1);
+        var _y = -( y / this.engine.h * 2 - 1);
 
         this.raycaster.setFromCamera(new THREE.Vector2(_x, _y), camera);
         var intersects = this.raycaster.intersectObjects(this.engine.scene.children);
@@ -79,13 +84,13 @@ class CameraController {
         var ll = XYZ2LatLon(intersects[0].point);
         return ll;
     }
-    looksky ()
-    {
-        this.lookatz  = EarthRadius * ratio;
+
+    looksky() {
+        this.lookatz = EarthRadius * ratio;
     }
-    lookat ()
-    {
-        this.lookatz  = EarthRadius * ratio;
+
+    lookback() {
+        this.lookatz = 0;
     }
 
 }
@@ -106,12 +111,13 @@ function GenText(word, x, y, z) {
 
 class DJIMapEngine {
     constructor(container, w, h) {
-        this.camera = new THREE.PerspectiveCamera(60, w / h, 1, 10000);
+        this.camera = new THREE.PerspectiveCamera(60, w / h, 0.0001, 10000);
         this.controller = new CameraController(this.camera, this);
         let scene = this.scene = new THREE.Scene();
         this.tm = new tilemanger(scene, 0);
         let renderer = this.renderer = new THREE.WebGLRenderer();
-        renderer.setClearColor(0xbfd1e5);
+        //renderer.setClearColor(0xbfd1e5);
+        renderer.setClearColor(0x000000);
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(w, h);
         container.innerHTML = "";
@@ -189,13 +195,18 @@ document.addEventListener('mousemove', function (event) {
     , false);
 document.addEventListener('click', function (event) {
     console.log(event);
-    var ll = engine.controller.getMouseLatLon(event.x,event.y);
-    if (ll != null)
-        var param = Utils.latlon2param(ll, 17);
-    engine.tm.find_replace_cover(
-        param
-    );
+    var ll = engine.controller.getMouseLatLon(event.x, event.y);
+    if (ll != null) {
+        var param = Utils.latlon2param(ll, 10);
+        console.log("param is");
+        console.log(param);
+        engine.tm.find_replace_cover(
+            param
+        );
+    }
+
 });
+
 document.addEventListener('keydown', function (event) {
     switch (event.keyCode) {
         case 187:

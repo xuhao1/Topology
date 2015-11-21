@@ -48,5 +48,9 @@ module.exports = {
     lat2tile:lat2tile,
     title2lat:title2lat,
     title2long:title2long,
-    latlon2param:latlon2param
+    latlon2param:latlon2param,
+    EarthRadius : 6371000,
+    ratio : 1.0 / 10000,
+    min_cam_height : 100,
+    max_cam_height : 6371000
 };
