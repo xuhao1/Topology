@@ -1,6 +1,7 @@
 # Topology
-## Usage
+## Usager
 Open app/\*.html
+And open cross-origin in Chrome
 
 ## build :
 Windows:
