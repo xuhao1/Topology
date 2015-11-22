@@ -1,3 +1,5 @@
+'use strict';
+
 function XYZ2LatLon(xyz)
 {
     xyz = xyz.normalize();

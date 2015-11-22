@@ -1,4 +1,4 @@
-var await = require("await");
+'use strict';
 
 var inNode = false;
 if (typeof XMLHttpRequest == "undefined") {

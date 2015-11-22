@@ -1,3 +1,5 @@
+'use strict';
+
 var Utils = require("./TopoUtils.js");
 var ratio = Utils.ratio;
 var EarthRadius = Utils.EarthRadius;
@@ -37,19 +39,28 @@ var maptileloader = function () {
     );
     return loader;
 };
+
+// Memory when loading height of texture
 var heightmaploader = function () {
     var size = 6;
     var loader = new dataloader("network", function (param) {
+            console.log(`http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`);
             return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`;
         }, "arraybuffer", function (arrayBuffer) {
             //console.log(arrayBuffer);
             var byteArray = new Int16Array(arrayBuffer);
+            console.log(byteArray.length);
             var w = Math.pow(2, size) + 1;
-            var data = new Float32Array(w  * w);
-            for (var i = 0; i < w; i++) {
-                for (var j = 0; j < w; j++) {
-                    data[(i * w + j)] = byteArray[(i * w + j)] * ratio;//byteArray[w-i+(w-j)*w];
+            var data = new Float32Array(w * w);
+            if (byteArray.length != 0) {
+                for (var i = 0; i < w; i++) {
+                    for (var j = 0; j < w; j++) {
+                        data[(i * w + j)] = byteArray[(i * w + j)] * ratio;//byteArray[w-i+(w-j)*w];
+                    }
                 }
+            }
+            else {
+                //console.log(`wrong at ${param.x} ${param.y} ${param.zoom}`);
             }
             var Texture = new THREE.DataTexture(data, w, w,
                 THREE.AlphaFormat, THREE.FloatType);

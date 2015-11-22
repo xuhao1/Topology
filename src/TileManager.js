@@ -1,3 +1,5 @@
+'use strict';
+
 var Utils = require("./TopoUtils.js");
 var long2tile = Utils.long2tile;
 var lat2tile = Utils.lat2tile;
@@ -60,7 +62,7 @@ function Map2tile(param, map_texture, height_texture = 0) {
     var _LatEnd = title2lat(y + 1, zoom);
     if (height_texture != 0)
         return SphereTitleWithHeight(_LatStart, _LatEnd, _LonStart, _LonEnd
-            , 64, 64, height_texture, true, map_texture);
+            , 32, 32, height_texture, true, map_texture);
     else
         return SphereTitleWithHeight(_LatStart, _LatEnd, _LonStart, _LonEnd
             , 16, 16, height_texture, true, map_texture);
@@ -95,11 +97,13 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                 let map_value = iter.data;
                 if (param_map.zoom >= obj.enable_height) {
                     obj.heightloader.load_data(iter.param, function (height_texture) {
-                        //console.log(height_texture);
                         var mesh = res[tileID(param_map)] = Map2tile(param_map, map_value, height_texture);
+                        //console.log(obj.global_scene);
+                        //console.log(mesh);
                         obj.global_scene.add(mesh);
                         obj.cached_map_set[tileID(param_map)] = mesh;
                         obj.global_map_set[tileID(param_map)] = mesh;
+
                         //mesh.material.wireframe = true;
                         //mesh.material.needsUpdate = true;
                     });
@@ -157,13 +161,13 @@ tilemanager.prototype.find_mini_cover = function (param) {
             y: Math.floor(param.y / Math.pow(2, param.zoom - zoom)),
             zoom: zoom
         };
-        console.log(tileID(tmp_param));
+        // console.log(tileID(tmp_param));
         if (tileID(tmp_param) in this.global_map_set) {
-            console.log("find cover!!!");
+            //console.log("find cover!!!");
             //console.log(tmp_param);
             var tile = this.global_map_set[tileID(tmp_param)];
-            tile.material.wireframe = true;
-            tile.material.needsUpdate = true;
+            //tile.material.wireframe = true;
+            //tile.material.needsUpdate = true;
             return {
                 param: tmp_param,
                 tile: tile
@@ -208,17 +212,19 @@ tilemanager.prototype.gen_replace_list = function (param_tar, param_ori) {
 
 };
 tilemanager.prototype.find_replace_cover = function (param) {
-    var k = this.find_mini_cover(param);
+    let k = this.find_mini_cover(param);
     var obj = this;
+
     if (k == null)
         return 0;
-    else {
-        var param_list = this.gen_replace_list(param, k.param);
-        this.load_global_tile_list(param_list, function (data) {
-            //console.log(k.tile);
-            obj.global_scene.remove(k.tile);
-        });
-    }
+    if (k.param.zoom >= param.zoom)
+        return;
+    var param_list = this.gen_replace_list(param, k.param);
+    this.load_global_tile_list(param_list, function (data) {
+        obj.global_scene.remove(k.tile);
+        //console.log(obj.global_map_set);
+        //obj.global_map_set.remove(tileID(param));
+    });
 };
 
 

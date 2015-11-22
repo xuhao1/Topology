@@ -1,3 +1,5 @@
+'use strict';
+
 let tilemanger = require("./TileManager.js");
 var Utils = require("./TopoUtils.js");
 var long2tile = Utils.long2tile;
@@ -82,6 +84,7 @@ class CameraController {
         if (intersects.length == 0)
             return null;
         var ll = XYZ2LatLon(intersects[0].point);
+        ll.distance = intersects[0].distance;
         return ll;
     }
 
@@ -91,6 +94,17 @@ class CameraController {
 
     lookback() {
         this.lookatz = 0;
+    }
+
+    autozoom(x, y) {
+        var ll = this.getMouseLatLon(x, y);
+        var DeltaTheta = (1.0 / this.engine.w) * 40 / 180 * Math.PI;
+        var PictureWidth = DeltaTheta * ll.distance * 256;
+        var DividePieces = Math.cos(ll.lat / 180 * Math.PI) * 2 * Math.PI
+            * EarthRadius * ratio / PictureWidth;
+        var Size = Math.floor(Math.log2(DividePieces)) - 1;
+        console.log(`${PictureWidth} : ${DividePieces} ${Size}`);
+        return Size;
     }
 
 }
@@ -111,13 +125,13 @@ function GenText(word, x, y, z) {
 
 class DJIMapEngine {
     constructor(container, w, h) {
-        this.camera = new THREE.PerspectiveCamera(60, w / h, 0.0001, 10000);
+        this.camera = new THREE.PerspectiveCamera(60, w / h, 0.01, 10000);
         this.controller = new CameraController(this.camera, this);
         let scene = this.scene = new THREE.Scene();
         this.tm = new tilemanger(scene, 0);
         let renderer = this.renderer = new THREE.WebGLRenderer();
-        //renderer.setClearColor(0xbfd1e5);
-        renderer.setClearColor(0x000000);
+        renderer.setClearColor(0xbfd1e5);
+        //renderer.setClearColor(0x000000);
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(w, h);
         container.innerHTML = "";
@@ -133,7 +147,7 @@ class DJIMapEngine {
         this.mouseX = 0;
         this.mouseY = 0;
 
-        this.tm.load_global_area(-85, 85, -180, 180, 3);
+        this.tm.load_global_area(-85, 85, -180, 180, 4);
 
         var axiscale = 1000;
         var axisHelper = new THREE.AxisHelper(axiscale);
@@ -147,6 +161,7 @@ class DJIMapEngine {
         scene.add(GenText("US y", 0, axiscale, 0));
         scene.add(GenText("North z", 0, 0, axiscale));
 
+        //this.autozoom();
     }
 
     static animate(engine) {
@@ -173,12 +188,27 @@ class DJIMapEngine {
         }
         let mouseX = this.mouseX;
         let mouseY = this.mouseY;
-
+        //console.log(this.controller);
+        //console.log(this.scene.children);
         this.controller.update();
         this.renderer.render(this.scene, this.camera);
 
+
     }
 
+    autozoom() {
+        var obj = this;
+        var ll = obj.controller.getMouseLatLon(obj.w / 2, obj.h / 2);
+        if (ll != null) {
+            var param = Utils.latlon2param(ll,
+                obj.controller.autozoom(obj.w / 2, obj.h / 2));
+            // console.log("param is");
+            //console.log(param);
+            obj.tm.find_replace_cover(
+                param
+            );
+        }
+    }
 }
 
 let engine = new DJIMapEngine(document.getElementById('container'),
@@ -197,7 +227,8 @@ document.addEventListener('click', function (event) {
     console.log(event);
     var ll = engine.controller.getMouseLatLon(event.x, event.y);
     if (ll != null) {
-        var param = Utils.latlon2param(ll, 10);
+        var param = Utils.latlon2param(ll,
+            engine.controller.autozoom(event.x, event.y));
         console.log("param is");
         console.log(param);
         engine.tm.find_replace_cover(
@@ -208,6 +239,7 @@ document.addEventListener('click', function (event) {
 });
 
 document.addEventListener('keydown', function (event) {
+    console.log(event.keyCode);
     switch (event.keyCode) {
         case 187:
             engine.controller.zoom(-1);
