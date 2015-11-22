@@ -47,7 +47,6 @@ var heightmaploader = function () {
             console.log(`http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`);
             return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`;
         }, "arraybuffer", function (arrayBuffer) {
-            //console.log(arrayBuffer);
             var byteArray = new Int16Array(arrayBuffer);
             console.log(byteArray.length);
             var w = Math.pow(2, size) + 1;

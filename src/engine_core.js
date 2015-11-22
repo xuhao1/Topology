@@ -103,7 +103,7 @@ class CameraController {
         var DividePieces = Math.cos(ll.lat / 180 * Math.PI) * 2 * Math.PI
             * EarthRadius * ratio / PictureWidth;
         var Size = Math.floor(Math.log2(DividePieces)) - 1;
-        console.log(`${PictureWidth} : ${DividePieces} ${Size}`);
+        // console.log(`${PictureWidth} : ${DividePieces} ${Size}`);
         return Size;
     }
 
@@ -161,7 +161,7 @@ class DJIMapEngine {
         scene.add(GenText("US y", 0, axiscale, 0));
         scene.add(GenText("North z", 0, 0, axiscale));
 
-        //this.autozoom();
+        this.autozoom();
     }
 
     static animate(engine) {
@@ -198,16 +198,20 @@ class DJIMapEngine {
 
     autozoom() {
         var obj = this;
-        var ll = obj.controller.getMouseLatLon(obj.w / 2, obj.h / 2);
-        if (ll != null) {
-            var param = Utils.latlon2param(ll,
-                obj.controller.autozoom(obj.w / 2, obj.h / 2));
-            // console.log("param is");
-            //console.log(param);
-            obj.tm.find_replace_cover(
-                param
-            );
-        }
+        setInterval(function () {
+            //console.log(obj.tm.loading);
+            if (obj.tm.loading)
+                return;
+            var ll = obj.controller.getMouseLatLon(obj.w / 2, obj.h / 2);
+            if (ll != null) {
+                var param = Utils.latlon2param(ll,
+                    obj.controller.autozoom(obj.w / 2, obj.h / 2));
+                // console.log("param is");
+                //console.log(param);
+                obj.tm.find_replace_cover(param);
+            }
+        }, 100);
+
     }
 }
 
@@ -223,6 +227,7 @@ document.addEventListener('mousemove', function (event) {
         //engine.animate();
     }
     , false);
+/*
 document.addEventListener('click', function (event) {
     console.log(event);
     var ll = engine.controller.getMouseLatLon(event.x, event.y);
@@ -237,7 +242,7 @@ document.addEventListener('click', function (event) {
     }
 
 });
-
+*/
 document.addEventListener('keydown', function (event) {
     console.log(event.keyCode);
     switch (event.keyCode) {

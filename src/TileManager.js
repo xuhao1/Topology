@@ -79,6 +79,7 @@ var tilemanager = function (global_scene, piece_scene) {
     this.enable_height = 9;
     this.global_map_set = {};
     this.cached_map_set = {};
+    this.loading = false;
 };
 
 tilemanager.prototype.constructor = tilemanager;
@@ -86,12 +87,14 @@ tilemanager.prototype.constructor = tilemanager;
 
 //Loading tile list and put them into global scene
 tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) {
+    this.loading = true;
     console.log(param_list);
     let obj = this;
     var res = {};
     this.maploader.load_data_list(
         param_list,
         function (map_list) {
+            let num = 0;
             for (let iter of map_list) {
                 let param_map = iter.param;
                 let map_value = iter.data;
@@ -103,7 +106,12 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                         obj.global_scene.add(mesh);
                         obj.cached_map_set[tileID(param_map)] = mesh;
                         obj.global_map_set[tileID(param_map)] = mesh;
+                        num ++;
 
+                        if (num == map_list.length) {
+                            obj.loading = false;
+                            onLoadList(res);
+                        }
                         //mesh.material.wireframe = true;
                         //mesh.material.needsUpdate = true;
                     });
@@ -113,9 +121,13 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                     obj.global_scene.add(mesh);
                     obj.cached_map_set[tileID(param_map)] = mesh;
                     obj.global_map_set[tileID(param_map)] = mesh;
+                    num++;
+                    if (num == map_list.length) {
+                        obj.loading = false;
+                        onLoadList(res);
+                    }
                 }
             }
-            onLoadList(res);
         }
     );
 };
