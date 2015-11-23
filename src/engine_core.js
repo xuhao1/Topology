@@ -147,7 +147,7 @@ class DJIMapEngine {
         this.mouseX = 0;
         this.mouseY = 0;
 
-        this.tm.load_global_area(-85, 85, -180, 180, 4);
+        this.tm.load_global_area(-85, 85, -180, 180, 3);
 
         var axiscale = 1000;
         var axisHelper = new THREE.AxisHelper(axiscale);

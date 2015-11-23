@@ -39,8 +39,8 @@ function SphereTitleWithHeight(LatStart, LatEnd, LonStart, LonEnd, ws, hs, heigh
         uniforms.heightmap = {type: "t", value: heightmap};
     }
     var ShaderMaterial = new THREE.ShaderMaterial({
-        vertexShader: $("#vertexshader").text(),
-        fragmentShader: $("#fragmentshader").text(),
+        vertexShader: document.getElementById("vertexshader").textContent,
+        fragmentShader: document.getElementById("fragmentshader").textContent,
         wireframe: false,
         shading: THREE.SmoothShading,
         uniforms: uniforms
