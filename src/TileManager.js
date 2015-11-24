@@ -33,10 +33,12 @@ function SphereTitleWithHeight(LatStart, LatEnd, LonStart, LonEnd, ws, hs, heigh
 
     var uniforms = {
         texture1: {type: "t", value: texturemap},
+        useheight : {type : 'i' , value : 0},
         ratio: {type: "t", value: ratio}
     };
     if (heightmap != 0) {
         uniforms.heightmap = {type: "t", value: heightmap};
+        uniforms.useheight = {type : 'i' , value : 1};
     }
     var ShaderMaterial = new THREE.ShaderMaterial({
         vertexShader: document.getElementById("vertexshader").textContent,
@@ -109,11 +111,10 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                         num ++;
 
                         if (num == map_list.length) {
+                            console.log("Finish loading with height");
                             obj.loading = false;
                             onLoadList(res);
                         }
-                        //mesh.material.wireframe = true;
-                        //mesh.material.needsUpdate = true;
                     });
                 }
                 else {
@@ -122,7 +123,9 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                     obj.cached_map_set[tileID(param_map)] = mesh;
                     obj.global_map_set[tileID(param_map)] = mesh;
                     num++;
+                    console.log(`num ${num}: ${map_list.length}`);
                     if (num == map_list.length) {
+                        console.log("Finish loading without height");
                         obj.loading = false;
                         onLoadList(res);
                     }
@@ -232,6 +235,10 @@ tilemanager.prototype.find_replace_cover = function (param) {
     if (k.param.zoom >= param.zoom)
         return;
     var param_list = this.gen_replace_list(param, k.param);
+    if (param_list.length == 0 )
+    return;
+    k.tile.material.wireframe = true;
+    k.tile.material.needsUpdate = true;
     this.load_global_tile_list(param_list, function (data) {
         obj.global_scene.remove(k.tile);
         //console.log(obj.global_map_set);

@@ -49,7 +49,7 @@ networkreader.prototype.read_async = function (param, onData) {
     var obj = this;
     oReq.onload = function (evt) {
         var data = oReq.response;
-        onData(obj.dataprocess(data));
+        onData(obj.dataprocess(param,data));
     };
     oReq.send(null);
 };

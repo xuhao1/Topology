@@ -188,11 +188,17 @@ class DJIMapEngine {
         }
         let mouseX = this.mouseX;
         let mouseY = this.mouseY;
-        //console.log(this.controller);
-        //console.log(this.scene.children);
         this.controller.update();
         this.renderer.render(this.scene, this.camera);
 
+        var d = new Date();
+        if (this.tm.loading)
+        {
+            $("#status").html(`loading ${d.getMilliseconds()}`);
+        }
+        else {
+            $("#status").html(`loaded ${d.getMilliseconds()}`);
+        }
 
     }
 
@@ -206,8 +212,6 @@ class DJIMapEngine {
             if (ll != null) {
                 var param = Utils.latlon2param(ll,
                     obj.controller.autozoom(obj.w / 2, obj.h / 2));
-                // console.log("param is");
-                //console.log(param);
                 obj.tm.find_replace_cover(param);
             }
         }, 100);
@@ -224,7 +228,6 @@ module.exports = engine;
 document.addEventListener('mousemove', function (event) {
         engine.mouseX += (event.clientX - engine.w / 2) / 20.0;
         engine.mouseY += (event.clientY - engine.h / 2) / 20.0;
-        //engine.animate();
     }
     , false);
 /*
