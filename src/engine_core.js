@@ -188,8 +188,6 @@ class DJIMapEngine {
         }
         let mouseX = this.mouseX;
         let mouseY = this.mouseY;
-        //console.log(this.controller);
-        //console.log(this.scene.children);
         this.controller.update();
         this.renderer.render(this.scene, this.camera);
 
@@ -202,12 +200,11 @@ class DJIMapEngine {
             //console.log(obj.tm.loading);
             if (obj.tm.loading)
                 return;
+            obj.tm.loading = true;
             var ll = obj.controller.getMouseLatLon(obj.w / 2, obj.h / 2);
             if (ll != null) {
                 var param = Utils.latlon2param(ll,
                     obj.controller.autozoom(obj.w / 2, obj.h / 2));
-                // console.log("param is");
-                //console.log(param);
                 obj.tm.find_replace_cover(param);
             }
         }, 100);
