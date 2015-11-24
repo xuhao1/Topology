@@ -241,8 +241,6 @@ tilemanager.prototype.find_replace_cover = function (param) {
     k.tile.material.needsUpdate = true;
     this.load_global_tile_list(param_list, function (data) {
         obj.global_scene.remove(k.tile);
-        //console.log(obj.global_map_set);
-        //obj.global_map_set.remove(tileID(param));
     });
 };
 
