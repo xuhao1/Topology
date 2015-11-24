@@ -191,6 +191,14 @@ class DJIMapEngine {
         this.controller.update();
         this.renderer.render(this.scene, this.camera);
 
+        var d = new Date();
+        if (this.tm.loading)
+        {
+            $("#status").html(`loading ${d.getMilliseconds()}`);
+        }
+        else {
+            $("#status").html(`loaded ${d.getMilliseconds()}`);
+        }
 
     }
 
@@ -200,7 +208,6 @@ class DJIMapEngine {
             //console.log(obj.tm.loading);
             if (obj.tm.loading)
                 return;
-            obj.tm.loading = true;
             var ll = obj.controller.getMouseLatLon(obj.w / 2, obj.h / 2);
             if (ll != null) {
                 var param = Utils.latlon2param(ll,
@@ -221,7 +228,6 @@ module.exports = engine;
 document.addEventListener('mousemove', function (event) {
         engine.mouseX += (event.clientX - engine.w / 2) / 20.0;
         engine.mouseY += (event.clientY - engine.h / 2) / 20.0;
-        //engine.animate();
     }
     , false);
 /*

@@ -6,6 +6,11 @@
             top: 0;
             left: 0;
         }
+        #status {
+          position: fixed;
+            bottom: 5%;
+            left: 5%;
+        }
     </style>
 
 </head>
@@ -33,19 +38,22 @@ varying vec2 vUv;
 uniform sampler2D texture1;
 uniform sampler2D heightmap;
 uniform float ratio;
+uniform int useheight;
 void main()
 {
     vUv = uv;
     vNormal = normal;
 
     vec4 height = texture2D(heightmap, vUv);
+    vec3 newPosition ;
 
-    vec3 newPosition = position +
-    normal * vec3( height.a ) * vec3(1.0);
+    if (useheight == 1)
+        newPosition = position + normal * vec3( height.a ) * vec3(1.0);
+    else
+        newPosition = position;
 
     gl_Position = projectionMatrix * modelViewMatrix *
      vec4(newPosition , 1.0);
-
 }
 
 
@@ -69,12 +77,13 @@ void main()
 
   gl_FragColor = texture2D(texture1, vUv);
 
-   //gl_FragColor = vec4(height.a,0.0,0.0,1.0);
+  //gl_FragColor = vec4(gl_FragColor.r,height.r,0.0,1.0);
 }
 
 
 </script>
 <script src="../build/bundle.js"></script>
 <div id="screen_infor"></div>
+<div id="status">Loading</div>
 </body>
 </html>
