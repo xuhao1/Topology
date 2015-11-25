@@ -1,0 +1,23 @@
+{
+  "name": "topology",
+  "version": "1.0.0",
+  "description": "Open app/\\*.html And open cross-origin in Chrome",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xuhao1/Topology.git"
+  },
+  "author": "HaoXu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xuhao1/Topology/issues"
+  },
+  "homepage": "https://github.com/xuhao1/Topology#readme",
+  "dependencies": {
+    "electron": "^0.4.1",
+    "mongodb": "^2.0.49"
+  }
+}

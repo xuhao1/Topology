@@ -236,7 +236,7 @@ tilemanager.prototype.find_replace_cover = function (param) {
         return;
     var param_list = this.gen_replace_list(param, k.param);
     if (param_list.length == 0 )
-    return;
+        return;
     k.tile.material.wireframe = true;
     k.tile.material.needsUpdate = true;
     this.load_global_tile_list(param_list, function (data) {

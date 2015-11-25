@@ -1,4 +1,5 @@
 'use strict';
+const ipcMain = require('electron').ipcMain;
 
 var inNode = false;
 if (typeof XMLHttpRequest == "undefined") {
@@ -54,6 +55,13 @@ networkreader.prototype.read_async = function (param, onData) {
     oReq.send(null);
 };
 
+var nativereader = function (url_gen, datatype, dataprocess) {
+    this.url_gen = url_gen;
+    this.datatype = datatype;
+    this.dataprocess = dataprocess;
+};
+
+nativereader.prototype.read_
 
 module.exports = function (name) {
     var dict = {
