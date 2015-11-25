@@ -12,7 +12,7 @@ function XYZ2LatLon(xyz)
     {
         lon = Math.PI - lon;
     }
-    else if(x<0&& y<0)
+    else if(x<0 && y<0)
     {
         lon = - Math.PI - lon;
     }
