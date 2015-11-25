@@ -11,6 +11,7 @@ var ratio = Utils.ratio;
 var EarthRadius = Utils.EarthRadius;
 var max_cam_height = Utils.max_cam_height;
 var min_cam_height = Utils.min_cam_height;
+var max_zoom = Utils.max_zoom;
 
 //Height should switch 30000 m
 class CameraController {
@@ -54,7 +55,7 @@ class CameraController {
 
     zoom(k) {
         this.height = this.height * (1 + 0.1 * k);
-        console.log(this.height);
+        //console.log(this.height);
         if (this.height < min_cam_height) {
             this.height = min_cam_height;
         }
@@ -102,8 +103,10 @@ class CameraController {
         var PictureWidth = DeltaTheta * ll.distance * 256;
         var DividePieces = Math.cos(ll.lat / 180 * Math.PI) * 2 * Math.PI
             * EarthRadius * ratio / PictureWidth;
-        var Size = Math.floor(Math.log2(DividePieces)) - 1;
+        var Size = Math.floor(Math.log2(DividePieces)) ;
         // console.log(`${PictureWidth} : ${DividePieces} ${Size}`);
+        if (Size > max_zoom)
+            return max_zoom;
         return Size;
     }
 
@@ -194,10 +197,10 @@ class DJIMapEngine {
         var d = new Date();
         if (this.tm.loading)
         {
-            $("#status").html(`loading ${d.getMilliseconds()}`);
+            $("#status").html(`loading height : ${this.controller.height}`);
         }
         else {
-            $("#status").html(`loaded ${d.getMilliseconds()}`);
+            $("#status").html(`loaded  height : ${this.controller.height}`);
         }
 
     }
@@ -247,7 +250,7 @@ document.addEventListener('click', function (event) {
 });
 */
 document.addEventListener('keydown', function (event) {
-    console.log(event.keyCode);
+    //console.log(event.keyCode);
     switch (event.keyCode) {
         case 187:
             engine.controller.zoom(-1);
