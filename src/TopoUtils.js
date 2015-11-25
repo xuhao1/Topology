@@ -12,7 +12,7 @@ function XYZ2LatLon(xyz)
     {
         lon = Math.PI - lon;
     }
-    else if(x<0&& y<0)
+    else if(x<0 && y<0)
     {
         lon = - Math.PI - lon;
     }
@@ -53,6 +53,7 @@ module.exports = {
     latlon2param:latlon2param,
     EarthRadius : 6371000,
     ratio : 1.0 / 10000,
-    min_cam_height : 100,
-    max_cam_height : 6371000
+    min_cam_height : 200,
+    max_cam_height : 6371000,
+    max_zoom : 17
 };

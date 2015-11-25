@@ -51,7 +51,6 @@ var heightmaploader = function () {
         var data = new Float32Array(w * w);
         try {
             var byteArray = new Int16Array(arrayBuffer);
-            //console.log(byteArray.length);
             if (byteArray.length != 0) {
                 for (var i = 0; i < w; i++) {
                     for (var j = 0; j < w; j++) {
