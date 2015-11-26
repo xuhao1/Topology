@@ -18,12 +18,21 @@ function handler(req, res) {
 }
 
 let map_cacher = cacher.map_cacher();
+let height_cacher = cacher.height_cacher();
 
 
 io.on('connection', function (socket) {
     socket.on('map_request', function (arg) {
         map_cacher.query(arg.param, function (data) {
             io.emit('map_reply', {
+                param: arg.param,
+                data: data
+            });
+        });
+    });
+    socket.on('height_request', function (arg) {
+        height_cacher.query(arg.param, function (data) {
+            io.emit('height_reply', {
                 param: arg.param,
                 data: data
             });

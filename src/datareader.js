@@ -57,14 +57,13 @@ networkreader.prototype.read_async = function (param, onData) {
     oReq.send(null);
 };
 
-var nativereader = function (url_gen, datatype, dataprocess) {
-    this.url_gen = url_gen;
+var nativereader = function (datatype, dataprocess) {
     this.datatype = datatype;
     this.dataprocess = dataprocess;
     this.pending_list = {};
     let obj = this;
     this.socket = io('http://localhost:8081');
-    this.socket.on("map_reply",function(data)
+    this.socket.on(`${datatype}_reply`,function(data)
     {
         obj.pending_list[tileID(data.param)](obj.dataprocess
         (data.param,data.data));
@@ -76,18 +75,13 @@ nativereader.prototype = Object.create(datareader.prototype);
 nativereader.prototype.read_async = function(param,onData) {
     this.pending_list[tileID(param)] = onData;
     console.log("requesting...");
-    this.socket.emit('map_request',
+    this.socket.emit(`${this.datatype}_request`,
         {
             param:param
         });
 };
 
-module.exports = function (name) {
-    var dict = {
-        "network": networkreader,
+module.exports = {
+        network: networkreader,
         naive : nativereader
-    };
-    // naive is NOT a typo but it reminder who read this program
-    // to stay yound, stay navie.
-    return dict[name];
 };
