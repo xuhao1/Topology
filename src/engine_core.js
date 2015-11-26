@@ -44,6 +44,14 @@ class CameraController {
     update() {
         this.theta += this.wx;
         this.phi += this.wy;
+        if (this.phi > 85 /180 *Math.PI)
+        {
+            this.phi = 85 /180 *Math.PI;
+        }
+        if (this.phi <  - 85 /180 *Math.PI)
+        {
+            this.phi = - 85 /180 *Math.PI;
+        }
         var rad = (EarthRadius + this.height) * ratio;
         this.camera.position.x = rad * Math.cos(this.theta) * Math.cos(this.phi);
         this.camera.position.y = rad * Math.sin(this.theta) * Math.cos(this.phi);

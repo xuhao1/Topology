@@ -24,6 +24,7 @@ app.on('ready', function() {
     mainWindow = new BrowserWindow({
         width: 1024,
         height: 768,
+        title: "Topology",
         'web-preferences': {
             'web-security': false
         }
