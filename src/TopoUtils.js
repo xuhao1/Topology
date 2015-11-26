@@ -44,6 +44,12 @@ function latlon2param(ll,zoom) {
         zoom: zoom
     };
 }
+function tileID(param) {
+    var x = param.x;
+    var y = param.y;
+    var zoom = param.zoom;
+    return `${x},${y},${zoom}`;
+}
 module.exports = {
     XYZ2LatLon:XYZ2LatLon,
     long2tile:long2tile,
@@ -55,5 +61,6 @@ module.exports = {
     ratio : 1.0 / 10000,
     min_cam_height : 200,
     max_cam_height : 6371000,
-    max_zoom : 17
+    max_zoom : 17,
+    tileID:tileID
 };

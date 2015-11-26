@@ -1,0 +1,89 @@
+<html>
+<head>
+    <style>
+        #container {
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        #status {
+          position: fixed;
+            bottom: 5%;
+            left: 5%;
+        }
+    </style>
+
+</head>
+<body>
+<script src="../static/js/three.js"></script>
+<script src="../static/js/jquery-1.11.3.min.js"></script>
+<div id="container"></div>
+
+<img id="test-map" src="">nothing</img>
+
+<script src="../static/js/ImprovedNoise.js"></script>
+<script src="../static/js/CanvasRenderer.js"></script>
+<script src="../static/js/Projector.js"></script>
+<script src='../static/js/stats.min.js'></script>
+<script src="../static/js/OrbitControls.js"></script>
+<script src="../static/js/TextGeometry.js"></script>
+<script src="../static/js/FontUtils.js"></script>
+<script src="../static/js/helvetiker_regular.typeface.js"></script>
+<script type="x-shader/x-vertex" id="vertexshader">
+ #ifdef GL_ES
+precision highp float;
+#endif
+varying vec3 vNormal;
+varying vec2 vUv;
+uniform sampler2D texture1;
+uniform sampler2D heightmap;
+uniform float ratio;
+uniform int useheight;
+void main()
+{
+    vUv = uv;
+    vNormal = normal;
+
+    vec4 height = texture2D(heightmap, vUv);
+    vec3 newPosition ;
+
+    if (useheight == 1)
+        newPosition = position + normal * vec3( height.a ) * vec3(1.0);
+    else
+        newPosition = position;
+
+    gl_Position = projectionMatrix * modelViewMatrix *
+     vec4(newPosition , 1.0);
+}
+
+
+</script>
+<script type="x-shader/x-fragment" id="fragmentshader">
+#ifdef GL_ES
+precision highp float;
+#endif
+varying vec3 vNormal;
+  uniform sampler2D texture1;
+  varying vec2 vUv;
+uniform sampler2D heightmap;
+
+void main()
+{
+  vec3 light = vec3(1, 0.9, 1.0);
+  light = normalize(light);
+  float dProd = max(0.0,
+                    dot(vNormal, light));
+  vec4 height = texture2D(heightmap,vUv);
+
+  gl_FragColor = texture2D(texture1, vUv);
+
+  //gl_FragColor = vec4(gl_FragColor.r,height.r,0.0,1.0);
+}
+
+
+</script>
+<script src="../src/engine_core.js"></script>
+<div id="screen_infor"></div>
+<div id="status">Loading</div>
+</body>
+</html>

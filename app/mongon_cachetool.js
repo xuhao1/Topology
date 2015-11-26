@@ -24,23 +24,47 @@ var httpdatacacher = function (url_gen) {
 };
 
 httpdatacacher.prototype.query_http = function (param, onLoad) {
+    /*
     var oReq = new XMLHttpRequest();
     var url = this.url_gen(param);
-    console.log(`query http ${url}`);
     oReq.open("GET", url, true);
     oReq.responseType = "blob";
     var obj = this;
     oReq.onload = function (evt) {
         var data = oReq.response;
+        console.log(`x :${param.x} y:${param.y} zoom:${param.zoom}  ${data.length}`);
         onLoad(data);
     };
     oReq.send(null);
+    */
+    var options = url.parse(this.url_gen(param));
+    var obj = this;
+    var req = http.request(options, function(res) {
+        res.setEncoding('binary'); // this
+
+        var data = [];
+        res.on('data', function(chunk) {
+            return data += chunk;
+        });
+        res.on('end', function() {
+            console.log(obj.url_gen(param));
+            console.log(`x :${param.x} y:${param.y} zoom:${param.zoom}  ${data.length}`);
+            data = new Buffer(data, "binary");
+            console.log(`x :${param.x} y:${param.y} zoom:${param.zoom}  ${data.length}`);
+            return onLoad(data);
+        });
+        res.on('error', function(err) {
+            console.log("Error during HTTP request");
+            console.log(err.message);
+        });
+    });
+    req.end();
 };
 
 httpdatacacher.prototype.query = function (param, onLoad) {
     var obj = this;
     var url = this.url_gen(param);
-    console.log(`query db ${url}`);
+    //console.log(`query db ${url}`);
     this.model.findOne({'url': url}, function (err, data) {
         if (err)
             return handleError(err);
@@ -63,7 +87,13 @@ httpdatacacher.prototype.query = function (param, onLoad) {
 
     });
 };
-
+function rawtoBuffer(ab) {
+    var buffer = new Buffer(ab.length);
+    for (var i = 0; i < buffer.length; ++i) {
+        buffer[i] = ab[i];
+    }
+    return buffer;
+}
 function toBuffer(ab) {
     var buffer = new Buffer(ab.byteLength);
     var view = new Uint8Array(ab);
@@ -89,6 +119,7 @@ var height_cacher = function()
     });
     return res;
 };
+
 module.exports = {
     map_cacher : map_cacher,
     height_cacher : height_cacher

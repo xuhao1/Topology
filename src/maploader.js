@@ -26,9 +26,12 @@ dataloader.prototype.load_data_list = function (list, onLoadList) {
 };
 
 var maptileloader = function () {
-    var loader = new dataloader("network", function (param) {
+    var loader = new dataloader("naive", function (param) {
             return `https://a.tiles.mapbox.com/v3/examples.map-qfyrx5r8/${param.zoom}/${param.x}/${param.y}.png`;
-        }, "blob", function (param,msg) {
+        }, "arraybuffer", function (param,data) {
+            console.log(param);
+            var msg = new Blob([data]);
+            console.log(msg);
             var img = document.createElement('img');
             img.src = URL.createObjectURL(msg);
             var texture = new THREE.Texture();

@@ -1,7 +1,19 @@
 'use strict';
+var tilemanger;
+var Utils;
+var $;
 
-let tilemanger = require("./TileManager.js");
-var Utils = require("./TopoUtils.js");
+try {
+    tilemanger = require("./TileManager.js");
+    Utils = require("./TopoUtils.js");
+    window.$ = window.jQuery = require('../static/js/jquery-1.11.3.min.js');
+}
+catch(e) {
+    tilemanger = require("../src/TileManager.js");
+    Utils = require("../src/TopoUtils.js");
+    window.$ = window.jQuery = require('../static/js/jquery-1.11.3.min.js');
+}
+
 var long2tile = Utils.long2tile;
 var lat2tile = Utils.lat2tile;
 var title2lat = Utils.title2lat;

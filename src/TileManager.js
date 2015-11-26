@@ -7,13 +7,9 @@ var title2lat = Utils.title2lat;
 var title2long = Utils.title2long;
 var ratio = Utils.ratio;
 var EarthRadius = Utils.EarthRadius;
+var tileID = Utils.tileID;
 
-function tileID(param) {
-    var x = param.x;
-    var y = param.y;
-    var zoom = param.zoom;
-    return `${x},${y},${zoom}`;
-}
+
 function SphereTitleWithHeight(LatStart, LatEnd, LonStart, LonEnd, ws, hs, heightmap, degree, texturemap) {
     if (degree) {
         LatStart = LatStart * Math.PI / 180.0;
@@ -54,7 +50,7 @@ function SphereTitleWithHeight(LatStart, LatEnd, LonStart, LonEnd, ws, hs, heigh
     return sphere;
 }
 
-function Map2tile(param, map_texture, height_texture = 0) {
+function Map2tile(param, map_texture, height_texture) {
     var x = param.x;
     var y = param.y;
     var zoom = param.zoom;
@@ -106,7 +102,7 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                         //console.log(obj.global_scene);
                         //console.log(mesh);
                         obj.global_scene.add(mesh);
-                        obj.cached_map_set[tileID(param_map)] = mesh;
+                        //obj.cached_map_set[tileID(param_map)] = mesh;
                         obj.global_map_set[tileID(param_map)] = mesh;
                         num ++;
 
@@ -118,12 +114,11 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                     });
                 }
                 else {
-                    var mesh = res[tileID(param_map)] = Map2tile(param_map, map_value);
+                    var mesh = res[tileID(param_map)] = Map2tile(param_map, map_value , 0);
                     obj.global_scene.add(mesh);
-                    obj.cached_map_set[tileID(param_map)] = mesh;
+                    //obj.cached_map_set[tileID(param_map)] = mesh;
                     obj.global_map_set[tileID(param_map)] = mesh;
                     num++;
-                    console.log(`num ${num}: ${map_list.length}`);
                     if (num == map_list.length) {
                         console.log("Finish loading without height");
                         obj.loading = false;

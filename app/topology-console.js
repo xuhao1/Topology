@@ -1,4 +1,37 @@
-const ipcMain = require('electron').ipcMain;
-ipcMain.on('height_map_request', function(event, arg) {
-    console.log(arg);  // prints "ping"
+'use strict';
+var app = require('http').createServer(handler);
+var io = require('socket.io')(app);
+var cacher = require("./mongon_cachetool.js");
+
+app.listen(8081);
+function handler(req, res) {
+    fs.readFile(__dirname + '/index.html',
+        function (err, data) {
+            if (err) {
+                res.writeHead(500);
+                return res.end('Error loading index.html');
+            }
+
+            res.writeHead(200);
+            res.end(data);
+        });
+}
+
+let map_cacher = cacher.map_cacher();
+
+
+io.on('connection', function (socket) {
+    socket.on('map_request', function (arg) {
+        map_cacher.query(arg.param, function (data) {
+            io.emit('map_reply', {
+                param: arg.param,
+                data: data
+            });
+        });
+    });
 });
+/*
+ map_cacher.query_http({x:4,y:8,zoom:4}, function (data) {
+
+ });
+ */

@@ -1,5 +1,8 @@
 'use strict';
-const ipcMain = require('electron').ipcMain;
+const ipcRenderer =  require('ipc-renderer');
+var Utils = require("./TopoUtils.js");
+var io = require("../static/js/socket.io.js");
+var tileID = Utils.tileID;
 
 var inNode = false;
 if (typeof XMLHttpRequest == "undefined") {
@@ -7,8 +10,7 @@ if (typeof XMLHttpRequest == "undefined") {
     inNode = true;
 }
 
-var datareader = function (url_gen, datatype, dataprocess) {
-    this.url_gen = url_gen;
+var datareader = function ( datatype, dataprocess) {
     this.datatype = datatype;
     this.dataprocess = dataprocess;
 };
@@ -59,13 +61,33 @@ var nativereader = function (url_gen, datatype, dataprocess) {
     this.url_gen = url_gen;
     this.datatype = datatype;
     this.dataprocess = dataprocess;
+    this.pending_list = {};
+    let obj = this;
+    this.socket = io('http://localhost:8081');
+    this.socket.on("map_reply",function(data)
+    {
+        obj.pending_list[tileID(data.param)](obj.dataprocess
+        (data.param,data.data));
+    });
 };
 
-nativereader.prototype.read_
+nativereader.prototype = Object.create(datareader.prototype);
+
+nativereader.prototype.read_async = function(param,onData) {
+    this.pending_list[tileID(param)] = onData;
+    console.log("requesting...");
+    this.socket.emit('map_request',
+        {
+            param:param
+        });
+};
 
 module.exports = function (name) {
     var dict = {
-        "network": networkreader
+        "network": networkreader,
+        naive : nativereader
     };
+    // naive is NOT a typo but it reminder who read this program
+    // to stay yound, stay navie.
     return dict[name];
 };
