@@ -24,14 +24,15 @@ dataloader.prototype.load_data_list = function (list, onLoadList) {
 var maptileloader = function () {
     var loader = new dataloader(
         "map", function (param,data) {
-            console.log(param);
             var msg = new Blob([data]);
-            console.log(msg);
             var img = document.createElement('img');
             img.src = URL.createObjectURL(msg);
             var texture = new THREE.Texture();
             texture.image = img;
             texture.needsUpdate = true;
+            console.log(param);
+            console.log(msg);
+            console.log(img.src);
             return texture;
         }
     );

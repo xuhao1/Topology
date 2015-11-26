@@ -76,6 +76,7 @@ httpdatacacher.prototype.query = function (param, onLoad) {
 
 var map_cacher = function () {
     var res = new httpdatacacher(function (param) {
+        console.log(`http://a.tiles.mapbox.com/v3/examples.map-qfyrx5r8/${param.zoom}/${param.x}/${param.y}.png`);
         return `http://a.tiles.mapbox.com/v3/examples.map-qfyrx5r8/${param.zoom}/${param.x}/${param.y}.png`;
     });
     return res;
@@ -83,6 +84,7 @@ var map_cacher = function () {
 var height_cacher = function () {
     var size = 6;
     var res = new httpdatacacher(function (param) {
+        console.log( `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`);
         return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`;
     });
     return res;
