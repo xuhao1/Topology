@@ -30,9 +30,6 @@ var maptileloader = function () {
             var texture = new THREE.Texture();
             texture.image = img;
             texture.needsUpdate = true;
-            console.log(param);
-            console.log(msg);
-            console.log(img.src);
             return texture;
         }
     );

@@ -11,7 +11,8 @@ var schema = new mongoose.Schema({
 
 var model = mongoose.model('Datacache', schema);
 
-var httpdatacacher = function (url_gen) {
+var httpdatacacher = function (url_gen,datatype) {
+    this.datatype = datatype;
     var obj = this;
     this.open_db = false;
     this.url_gen = url_gen;
@@ -68,6 +69,8 @@ httpdatacacher.prototype.query = function (param, onLoad) {
             });
         }
         else {
+            if (obj.datatype == "map")
+                fs.writeFileSync(`data/imgs/${param.zoom}-${param.x}-${param.y}.png`,data.data);
             onLoad(data.data.buffer);
         }
 
@@ -78,7 +81,7 @@ var map_cacher = function () {
     var res = new httpdatacacher(function (param) {
         console.log(`http://a.tiles.mapbox.com/v3/examples.map-qfyrx5r8/${param.zoom}/${param.x}/${param.y}.png`);
         return `http://a.tiles.mapbox.com/v3/examples.map-qfyrx5r8/${param.zoom}/${param.x}/${param.y}.png`;
-    });
+    },"map");
     return res;
 };
 var height_cacher = function () {
@@ -86,7 +89,7 @@ var height_cacher = function () {
     var res = new httpdatacacher(function (param) {
         console.log( `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`);
         return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`;
-    });
+    },"height");
     return res;
 };
 

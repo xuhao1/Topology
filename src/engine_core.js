@@ -99,7 +99,6 @@ class CameraController {
         var camera = this.camera;
         var _x = x / this.engine.w * 2 - 1;
         var _y = -( y / this.engine.h * 2 - 1);
-
         this.raycaster.setFromCamera(new THREE.Vector2(_x, _y), camera);
         var intersects = this.raycaster.intersectObjects(this.engine.scene.children);
         if (intersects.length == 0)
@@ -128,6 +127,15 @@ class CameraController {
         if (Size > max_zoom)
             return max_zoom;
         return Size;
+    }
+    debugimg() {
+        var d = this.engine.getMouseTile();
+        console.log(d);
+        if (d!=null)
+        {
+            var src = d.tile.material.uniforms.texture1.value.image.currentSrc
+            document.getElementById("debugimg").setAttribute("src",src);
+        }
     }
 
 }
@@ -240,6 +248,23 @@ class DJIMapEngine {
         }, 100);
 
     }
+    getMouseLatLon() {
+        //console.log({x:this.mouseX,y:this.mouseY});
+        return this.controller.getMouseLatLon(this.mouseX,this.mouseY);
+    }
+    getMouseTile() {
+        var ll = this.getMouseLatLon();
+        if (ll!=null) {
+            var param = {
+                zoom : 20,
+                y: Utils.lat2tile(ll.lat,20),
+                x: Utils.long2tile(ll.lon,20)
+            };
+            return this.tm.find_mini_cover(param);
+        }
+        return null;
+    }
+
 }
 
 let engine = new DJIMapEngine(document.getElementById('container'),
@@ -249,26 +274,15 @@ DJIMapEngine.animate(engine);
 module.exports = engine;
 
 document.addEventListener('mousemove', function (event) {
-        engine.mouseX += (event.clientX - engine.w / 2) / 20.0;
-        engine.mouseY += (event.clientY - engine.h / 2) / 20.0;
+        engine.mouseX = event.x ;
+        engine.mouseY = event.y ;
+        var coor = engine.getMouseLatLon();
+        var tile = engine.getMouseTile();
+        if (coor != null) {
+            document.getElementById('mouseLatLon').innerHTML = `mouse : ${coor.lat} ${coor.lon} tile x:${tile.param.x} y:${tile.param.y} zoom:${tile.param.zoom}`;
+        }
     }
     , false);
-/*
-document.addEventListener('click', function (event) {
-    console.log(event);
-    var ll = engine.controller.getMouseLatLon(event.x, event.y);
-    if (ll != null) {
-        var param = Utils.latlon2param(ll,
-            engine.controller.autozoom(event.x, event.y));
-        console.log("param is");
-        console.log(param);
-        engine.tm.find_replace_cover(
-            param
-        );
-    }
-
-});
-*/
 document.addEventListener('keydown', function (event) {
     //console.log(event.keyCode);
     switch (event.keyCode) {
@@ -295,6 +309,9 @@ document.addEventListener('keydown', function (event) {
             break;
         case 89:
             engine.controller.lookback();
+            break;
+        case 68:
+            engine.controller.debugimg();
             break;
 
     }

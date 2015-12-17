@@ -6,10 +6,23 @@
             top: 0;
             left: 0;
         }
+
         #status {
-          position: fixed;
+            position: fixed;
             bottom: 5%;
             left: 5%;
+        }
+
+        #mouseLatLon {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+        }
+        #debugimg{
+            position: fixed;
+            top:5%;
+            right:5%;
+            width: 20%;
         }
     </style>
 
@@ -57,6 +70,7 @@ void main()
 }
 
 
+
 </script>
 <script type="x-shader/x-fragment" id="fragmentshader">
 #ifdef GL_ES
@@ -81,9 +95,12 @@ void main()
 }
 
 
+
 </script>
 <script src="../src/engine_core.js"></script>
 <div id="screen_infor"></div>
 <div id="status">Loading</div>
+<div id="mouseLatLon">0,0</div>
+<img id="debugimg">img</img>
 </body>
 </html>
