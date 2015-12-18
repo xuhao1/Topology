@@ -7,8 +7,8 @@ var EarthRadius = Utils.EarthRadius;
 var reader = require("./datareader");
 //var THREE = require("three.js")
 
-var dataloader = function (datatype, dataproccess) {
-    this.reader = new reader.naive(datatype, dataproccess);
+var dataloader = function (url_gen,datatype, dataproccess) {
+    this.reader = new reader.network(url_gen,datatype, dataproccess);
 };
 
 dataloader.prototype.constructor = dataloader;
@@ -22,11 +22,13 @@ dataloader.prototype.load_data_list = function (list, onLoadList) {
 };
 
 var maptileloader = function () {
-    var loader = new dataloader(
-        "map", function (param,data) {
-            var msg = new Blob([data]);
+    var loader = new dataloader(Utils.urlgen.map.server,
+        "blob", function ( param,data) {
+            console.log(typeof data);
+            if (typeof data != "object")
+                data = new Blob(data);
             var img = document.createElement('img');
-            img.src = URL.createObjectURL(msg);
+            img.src = URL.createObjectURL(data);
             var texture = new THREE.Texture();
             texture.image = img;
             texture.needsUpdate = true;
@@ -39,7 +41,7 @@ var maptileloader = function () {
 // Memory when loading height of texture
 var heightmaploader = function () {
     var size = 6;
-    var loader = new dataloader("height", function (param,arrayBuffer) {
+    var loader = new dataloader(Utils.urlgen.height.server,"arraybuffer", function (param,arrayBuffer) {
         var w = Math.pow(2, size) + 1;
         var data = new Float32Array(w * w);
         try {
