@@ -1,46 +1,44 @@
 'use strict';
-var app = require('http').createServer(handler);
-var io = require('socket.io')(app);
 var cacher = require("./mongon_cachetool.js");
-
-app.listen(8081);
-function handler(req, res) {
-    fs.readFile(__dirname + '/index.html',
-        function (err, data) {
-            if (err) {
-                res.writeHead(500);
-                return res.end('Error loading index.html');
-            }
-
-            res.writeHead(200);
-            res.end(data);
-        });
-}
-
 let map_cacher = cacher.map_cacher();
 let height_cacher = cacher.height_cacher();
 
+var express = require('express');
+var app = express();
 
-io.on('connection', function (socket) {
-    socket.on('map_request', function (arg) {
-        map_cacher.query(arg.param, function (data) {
-            io.emit('map_reply', {
-                param: arg.param,
-                data: data
-            });
-        });
-    });
-    socket.on('height_request', function (arg) {
-        height_cacher.query(arg.param, function (data) {
-            io.emit('height_reply', {
-                param: arg.param,
-                data: data
-            });
-        });
-    });
+app.get('/', function (req, res) {
+    res.send('Hello World!');
 });
-/*
- map_cacher.query_http({x:4,y:8,zoom:4}, function (data) {
+app.get('/map.*',function(req,res){
+    var param = {
+        x:req.query.x,
+        y:req.query.y,
+        zoom:req.query.zoom
+    };
+    map_cacher.query(
+        param, function(data) {
+            console.log(data);
+            res.send(data);
+        }
+    );
+});
+app.get('/map.*',function(req,res){
+    var param = {
+        x:req.query.x,
+        y:req.query.y,
+        zoom:req.query.zoom,
+        size:6
+    };
+    height_cacher.query(
+        param, function(data) {
+            console.log(data);
+            res.send(data);
+        }
+    );
+});
 
- });
- */
+var server = app.listen(4707, function () {
+    var host = server.address().address;
+    var port = server.address().port;
+});
+

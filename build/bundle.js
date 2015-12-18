@@ -296,7 +296,7 @@ var urlgen = {
             return `http://a.tiles.mapbox.com/v3/examples.map-qfyrx5r8/${param.zoom}/${param.x}/${param.y}.png`;
         },
         local: function(param) {
-            return `http://localhost:4707/map/${param.zoom}/${param.x}/${param.y}.png`;
+            return `http://localhost:4707/map.png?&zoom=${param.zoom}&x=${param.x}&y=${param.y}`;
         }
     },
     height: {
@@ -304,7 +304,7 @@ var urlgen = {
             return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/6`;
         },
         local: function(param) {
-            return `http://localhost:4707/height/${param.x}/${param.y}/${param.zoom}/6`;
+            return `http://localhost:4707/height/?x=${param.x}&y=${param.y}&z=${param.zoom}&zoom=6`;
         }
     }
 };
@@ -542,7 +542,6 @@ class CameraController {
         var DividePieces = Math.cos(ll.lat / 180 * Math.PI) * 2 * Math.PI
             * EarthRadius * ratio / PictureWidth;
         var Size = Math.floor(Math.log2(DividePieces)) ;
-        // console.log(`${PictureWidth} : ${DividePieces} ${Size}`);
         if (Size > max_zoom)
             return max_zoom;
         return Size;
@@ -715,7 +714,7 @@ dataloader.prototype.load_data_list = function (list, onLoadList) {
 };
 
 var maptileloader = function () {
-    var loader = new dataloader(Utils.urlgen.map.server,
+    var loader = new dataloader(Utils.urlgen.map.local,
         "blob", function ( param,data) {
             console.log(typeof data);
             if (typeof data != "object")

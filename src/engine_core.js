@@ -123,7 +123,6 @@ class CameraController {
         var DividePieces = Math.cos(ll.lat / 180 * Math.PI) * 2 * Math.PI
             * EarthRadius * ratio / PictureWidth;
         var Size = Math.floor(Math.log2(DividePieces)) ;
-        // console.log(`${PictureWidth} : ${DividePieces} ${Size}`);
         if (Size > max_zoom)
             return max_zoom;
         return Size;

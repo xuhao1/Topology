@@ -47,7 +47,7 @@ var urlgen = {
             return `http://a.tiles.mapbox.com/v3/examples.map-qfyrx5r8/${param.zoom}/${param.x}/${param.y}.png`;
         },
         local: function(param) {
-            return `http://localhost:4707/map/${param.zoom}/${param.x}/${param.y}.png`;
+            return `http://localhost:4707/map.png?&zoom=${param.zoom}&x=${param.x}&y=${param.y}`;
         }
     },
     height: {
@@ -55,7 +55,7 @@ var urlgen = {
             return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/6`;
         },
         local: function(param) {
-            return `http://localhost:4707/height/${param.x}/${param.y}/${param.zoom}/6`;
+            return `http://localhost:4707/height/?x=${param.x}&y=${param.y}&z=${param.zoom}&zoom=6`;
         }
     }
 };

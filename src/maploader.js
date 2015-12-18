@@ -22,7 +22,7 @@ dataloader.prototype.load_data_list = function (list, onLoadList) {
 };
 
 var maptileloader = function () {
-    var loader = new dataloader(Utils.urlgen.map.server,
+    var loader = new dataloader(Utils.urlgen.map.local,
         "blob", function ( param,data) {
             console.log(typeof data);
             if (typeof data != "object")
@@ -41,7 +41,7 @@ var maptileloader = function () {
 // Memory when loading height of texture
 var heightmaploader = function () {
     var size = 6;
-    var loader = new dataloader(Utils.urlgen.height.server,"arraybuffer", function (param,arrayBuffer) {
+    var loader = new dataloader(Utils.urlgen.height.local,"arraybuffer", function (param,arrayBuffer) {
         var w = Math.pow(2, size) + 1;
         var data = new Float32Array(w * w);
         try {
