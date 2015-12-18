@@ -225,10 +225,10 @@ class DJIMapEngine {
         var d = new Date();
         if (this.tm.loading)
         {
-            $("#status").html(`loading height : ${this.controller.height}`);
+            document.getElementById("status").innerHTML = (`loading height : ${this.controller.height}`);
         }
         else {
-            $("#status").html(`loaded  height : ${this.controller.height}`);
+            document.getElementById("status").innerHTML = ( `loaded  height : ${this.controller.height}`);
         }
 
     }
@@ -267,52 +267,6 @@ class DJIMapEngine {
 
 }
 
-let engine = new DJIMapEngine(document.getElementById('container'),
-    window.innerWidth, window.innerHeight);
-DJIMapEngine.animate(engine);
 
-module.exports = engine;
+window.DJIMapEngine = DJIMapEngine;
 
-document.addEventListener('mousemove', function (event) {
-        engine.mouseX = event.x ;
-        engine.mouseY = event.y ;
-        var coor = engine.getMouseLatLon();
-        var tile = engine.getMouseTile();
-        if (coor != null) {
-            document.getElementById('mouseLatLon').innerHTML = `mouse : ${coor.lat} ${coor.lon} tile x:${tile.param.x} y:${tile.param.y} zoom:${tile.param.zoom}`;
-        }
-    }
-    , false);
-document.addEventListener('keydown', function (event) {
-    //console.log(event.keyCode);
-    switch (event.keyCode) {
-        case 187:
-            engine.controller.zoom(-1);
-            break;
-        case 189:
-            engine.controller.zoom(1);
-            break;
-        case 39:
-            engine.controller.leftright(1);
-            break;
-        case 37:
-            engine.controller.leftright(-1);
-            break;
-        case 38:
-            engine.controller.updown(1);
-            break;
-        case 40:
-            engine.controller.updown(-1);
-            break;
-        case 84:
-            engine.controller.looksky();
-            break;
-        case 89:
-            engine.controller.lookback();
-            break;
-        case 68:
-            engine.controller.debugimg();
-            break;
-
-    }
-}, false);

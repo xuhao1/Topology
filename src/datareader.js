@@ -1,5 +1,4 @@
 'use strict';
-const ipcRenderer =  require('ipc-renderer');
 var Utils = require("./TopoUtils.js");
 var io = require("../static/js/socket.io.js");
 var tileID = Utils.tileID;
