@@ -224,15 +224,8 @@ tilemanager.prototype.find_replace_cover = function (param) {
 
     if (k == null)
         return 0;
-    if (k.param.zoom > param.zoom)
-    {
-        this.zoomout();
+    if (k.param.zoom >= param.zoom)
         return;
-    }
-    if (k.param.zoom == param.zoom)
-    {
-        return;
-    }
     var param_list = this.gen_replace_list(param, k.param);
     if (param_list.length == 0 )
         return;
@@ -672,7 +665,7 @@ class DJIMapEngine {
         this.tm.zoomin();
     }
     zoomout(){
-        //this.tm.zoomout();
+        this.tm.zoomout();
     }
 
     render() {
