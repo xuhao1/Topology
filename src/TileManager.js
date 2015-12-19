@@ -241,13 +241,13 @@ tilemanager.prototype.find_replace_cover = function (param) {
         }
     });
 };
-tilemanager.prototype.zoomin = function (param) {
+tilemanager.prototype.zoomin = function () {
     this.loadstack.push([]);
     this.unloadstack.push([]);
 };
 
 
-tilemanager.prototype.zoomout = function (param) {
+tilemanager.prototype.zoomout = function () {
     console.log(this.loadstack);
     console.log(this.unloadstack);
     if (this.loadstack.length < 3)
