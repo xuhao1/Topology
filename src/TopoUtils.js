@@ -55,7 +55,7 @@ var urlgen = {
             return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/6`;
         },
         local: function(param) {
-            return `http://localhost:4707/height/?x=${param.x}&y=${param.y}&z=${param.zoom}&zoom=6`;
+            return `http://localhost:4707/height/?x=${param.x}&y=${param.y}&zoom=${param.zoom}&size=6`;
         }
     }
 };

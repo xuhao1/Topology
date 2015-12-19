@@ -82,6 +82,10 @@ class CameraController {
         if (this.height > max_cam_height) {
             this.height = max_cam_height;
         }
+        if (k>0)
+            this.engine.zoomout();
+        else
+            this.engine.zoomin();
         this.needUpdateMap();
     }
 
@@ -208,6 +212,12 @@ class DJIMapEngine {
 
     }
 
+    zoomin() {
+        this.tm.zoomin();
+    }
+    zoomout(){
+        this.tm.zoomout();
+    }
 
     render() {
         if (this.mouseX > 2000 || this.mouseX < 0) {

@@ -24,7 +24,6 @@ dataloader.prototype.load_data_list = function (list, onLoadList) {
 var maptileloader = function () {
     var loader = new dataloader(Utils.urlgen.map.local,
         "blob", function ( param,data) {
-            console.log(typeof data);
             if (typeof data != "object")
                 data = new Blob(data);
             var img = document.createElement('img');

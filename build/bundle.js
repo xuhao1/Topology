@@ -64,7 +64,7 @@ function Map2tile(param, map_texture, height_texture) {
     var _LatEnd = title2lat(y + 1, zoom);
     if (height_texture != 0)
         return SphereTitleWithHeight(_LatStart, _LatEnd, _LonStart, _LonEnd
-            , 32, 32, height_texture, true, map_texture);
+            ,32,32, height_texture, true, map_texture);
     else
         return SphereTitleWithHeight(_LatStart, _LatEnd, _LonStart, _LonEnd
             , 16, 16, height_texture, true, map_texture);
@@ -77,11 +77,11 @@ var tilemanager = function (global_scene, piece_scene) {
     this.maploader = dataloader.map();
     this.heightloader = dataloader.height();
     this.global_scene = global_scene;
-    this.piece_scene = piece_scene;
     this.enable_height = 9;
     this.global_map_set = {};
-    this.cached_map_set = {};
     this.loading = false;
+    this.loadstack = [[]];
+    this.unloadstack = [[]];
 };
 
 tilemanager.prototype.constructor = tilemanager;
@@ -90,7 +90,6 @@ tilemanager.prototype.constructor = tilemanager;
 //Loading tile list and put them into global scene
 tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) {
     this.loading = true;
-    console.log(param_list);
     let obj = this;
     var res = {};
     this.maploader.load_data_list(
@@ -103,10 +102,7 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                 if (param_map.zoom >= obj.enable_height) {
                     obj.heightloader.load_data(iter.param, function (height_texture) {
                         var mesh = res[tileID(param_map)] = Map2tile(param_map, map_value, height_texture);
-                        //console.log(obj.global_scene);
-                        //console.log(mesh);
-                        obj.global_scene.add(mesh);
-                        //obj.cached_map_set[tileID(param_map)] = mesh;
+                        obj.loadstack[obj.loadstack.length - 1].push({mesh:mesh,param:param_map});
                         obj.global_map_set[tileID(param_map)] = mesh;
                         num ++;
 
@@ -119,8 +115,7 @@ tilemanager.prototype.load_global_tile_list = function (param_list, onLoadList) 
                 }
                 else {
                     var mesh = res[tileID(param_map)] = Map2tile(param_map, map_value , 0);
-                    obj.global_scene.add(mesh);
-                    //obj.cached_map_set[tileID(param_map)] = mesh;
+                    obj.loadstack[obj.loadstack.length - 1].push({mesh:mesh,param:param_map});
                     obj.global_map_set[tileID(param_map)] = mesh;
                     num++;
                     if (num == map_list.length) {
@@ -156,8 +151,12 @@ tilemanager.prototype.load_global_area = function (LatStart, LatEnd, LonStart, L
             });
         }
     }
+    let obj = this;
     this.load_global_tile_list(params, function (list) {
-        console.log("loaded...");
+        for (var i in list) {
+            var tile = list[i];
+            obj.global_scene.add(tile);
+        }
     });
 };
 
@@ -175,10 +174,7 @@ tilemanager.prototype.find_mini_cover = function (param) {
             y: Math.floor(param.y / Math.pow(2, param.zoom - zoom)),
             zoom: zoom
         };
-        // console.log(tileID(tmp_param));
         if (tileID(tmp_param) in this.global_map_set) {
-            //console.log("find cover!!!");
-            //console.log(tmp_param);
             var tile = this.global_map_set[tileID(tmp_param)];
             //tile.material.wireframe = true;
             //tile.material.needsUpdate = true;
@@ -240,9 +236,46 @@ tilemanager.prototype.find_replace_cover = function (param) {
     k.tile.material.needsUpdate = true;
     this.load_global_tile_list(param_list, function (data) {
         obj.global_scene.remove(k.tile);
+        obj.unloadstack[obj.unloadstack.length - 1].push({mesh:k.tile,param:k.param});
+        delete obj.global_map_set[tileID(k.param)];
+        for (var i in data)
+        {
+            var tile = data[i];
+            obj.global_scene.add(tile);
+        }
     });
 };
+tilemanager.prototype.zoomin = function (param) {
+    this.loadstack.push([]);
+    this.unloadstack.push([]);
+};
 
+
+tilemanager.prototype.zoomout = function (param) {
+    console.log(this.loadstack);
+    console.log(this.unloadstack);
+    if (this.loadstack.length < 3)
+        return;
+    var unstacktop = this.unloadstack.pop();
+    var lostacktop = this.loadstack.pop();
+    if (unstacktop.length > 0) {
+        while (lostacktop.length > 0)
+        {
+            console.log("delete new");
+            var p = lostacktop.pop();
+            this.global_scene.remove(p.mesh);
+            delete this.global_map_set[tileID(p.param)];
+        }
+        while (unstacktop.length > 0) {
+            console.log("add old");
+            var p = unstacktop.pop();
+            this.global_scene.add(p.mesh);
+            p.mesh.material.wireframe = false;
+            p.mesh.needsUpdate = true;
+            this.global_map_set[tileID(p.param)] = p.mesh;
+        }
+    }
+};
 
 module.exports = tilemanager;
 
@@ -304,7 +337,7 @@ var urlgen = {
             return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/6`;
         },
         local: function(param) {
-            return `http://localhost:4707/height/?x=${param.x}&y=${param.y}&z=${param.zoom}&zoom=6`;
+            return `http://localhost:4707/height/?x=${param.x}&y=${param.y}&zoom=${param.zoom}&size=6`;
         }
     }
 };
@@ -501,6 +534,10 @@ class CameraController {
         if (this.height > max_cam_height) {
             this.height = max_cam_height;
         }
+        if (k>0)
+            this.engine.zoomout();
+        else
+            this.engine.zoomin();
         this.needUpdateMap();
     }
 
@@ -627,6 +664,12 @@ class DJIMapEngine {
 
     }
 
+    zoomin() {
+        this.tm.zoomin();
+    }
+    zoomout(){
+        this.tm.zoomout();
+    }
 
     render() {
         if (this.mouseX > 2000 || this.mouseX < 0) {
@@ -716,7 +759,6 @@ dataloader.prototype.load_data_list = function (list, onLoadList) {
 var maptileloader = function () {
     var loader = new dataloader(Utils.urlgen.map.local,
         "blob", function ( param,data) {
-            console.log(typeof data);
             if (typeof data != "object")
                 data = new Blob(data);
             var img = document.createElement('img');
@@ -733,7 +775,7 @@ var maptileloader = function () {
 // Memory when loading height of texture
 var heightmaploader = function () {
     var size = 6;
-    var loader = new dataloader(Utils.urlgen.height.server,"arraybuffer", function (param,arrayBuffer) {
+    var loader = new dataloader(Utils.urlgen.height.local,"arraybuffer", function (param,arrayBuffer) {
         var w = Math.pow(2, size) + 1;
         var data = new Float32Array(w * w);
         try {

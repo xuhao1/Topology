@@ -22,7 +22,7 @@ app.get('/map.*',function(req,res){
         }
     );
 });
-app.get('/map.*',function(req,res){
+app.get('/height/',function(req,res){
     var param = {
         x:req.query.x,
         y:req.query.y,
