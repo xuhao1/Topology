@@ -1,4 +1,4 @@
-var mongoose = "";
+var mongoose = 0;
 try {
     mongoose = require('mongoose');
 }
@@ -9,13 +9,16 @@ var http = require('http');
 var url = require('url');
 var XMLHttpRequest = require('xhr2');
 var fs = require('fs');
+var schema = 0;
+var model = 0;
+if (mongoose != 0) {
+    schema = new mongoose.Schema({
+        url: String,
+        data: Buffer
+    });
+    model = mongoose.model('Datacache', schema);
+}
 
-var schema = new mongoose.Schema({
-    url: String,
-    data: Buffer
-});
-
-var model = mongoose.model('Datacache', schema);
 
 var datacacher = function (url_gen, datatype) {
     this.datatype = datatype;
@@ -110,7 +113,7 @@ fsdatacacher.prototype.query = function (param, onLoad) {
     if (this.datatype == "map")
         path += '.png';
     if (this.datatype == "height")
-        path +=  `-${param.size}.height`;
+        path += `-${param.size}.height`;
     if (fs.existsSync(path)) {
         console.log(`reading ${path}`);
         var str = fs.readFileSync(path);
