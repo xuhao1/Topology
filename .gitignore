@@ -14,7 +14,8 @@ tmp/
 local.properties
 .classpath
 .settings/
-.loadpath
+.loadpath/
+data/
 
 # External tool builders
 .externalToolBuilders/
@@ -46,7 +47,6 @@ local.properties
 [Dd]ebug/
 [Rr]elease/
 x64/
-build/
 [Bb]in/
 [Oo]bj/
 
@@ -216,3 +216,4 @@ pip-log.txt
 .mr.developer.cfg
 
 .idea
+node_modules

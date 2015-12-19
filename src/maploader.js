@@ -4,15 +4,11 @@ var Utils = require("./TopoUtils.js");
 var ratio = Utils.ratio;
 var EarthRadius = Utils.EarthRadius;
 
-var readerloader = require("./datareader");
+var reader = require("./datareader");
 //var THREE = require("three.js")
-var dataloader = function (reader_type, url_gen, datatype, dataproccess) {
 
-    var reader = readerloader(reader_type);
-    if (reader === undefined) {
-        return;
-    }
-    this.reader = new reader(url_gen, datatype, dataproccess);
+var dataloader = function (url_gen,datatype, dataproccess) {
+    this.reader = new reader.network(url_gen,datatype, dataproccess);
 };
 
 dataloader.prototype.constructor = dataloader;
@@ -26,11 +22,12 @@ dataloader.prototype.load_data_list = function (list, onLoadList) {
 };
 
 var maptileloader = function () {
-    var loader = new dataloader("network", function (param) {
-            return `https://a.tiles.mapbox.com/v3/examples.map-qfyrx5r8/${param.zoom}/${param.x}/${param.y}.png`;
-        }, "blob", function (param,msg) {
+    var loader = new dataloader(Utils.urlgen.map.local,
+        "blob", function ( param,data) {
+            if (typeof data != "object")
+                data = new Blob(data);
             var img = document.createElement('img');
-            img.src = URL.createObjectURL(msg);
+            img.src = URL.createObjectURL(data);
             var texture = new THREE.Texture();
             texture.image = img;
             texture.needsUpdate = true;
@@ -43,10 +40,7 @@ var maptileloader = function () {
 // Memory when loading height of texture
 var heightmaploader = function () {
     var size = 6;
-    var loader = new dataloader("network", function (param) {
-        console.log(`http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`);
-        return `http://gdem.yfgao.com/${param.x}/${param.y}/${param.zoom}/${size}`;
-    }, "arraybuffer", function (param,arrayBuffer) {
+    var loader = new dataloader(Utils.urlgen.height.local,"arraybuffer", function (param,arrayBuffer) {
         var w = Math.pow(2, size) + 1;
         var data = new Float32Array(w * w);
         try {

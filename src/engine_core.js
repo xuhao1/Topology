@@ -1,7 +1,19 @@
 'use strict';
+var tilemanger;
+var Utils;
+var $;
 
-let tilemanger = require("./TileManager.js");
-var Utils = require("./TopoUtils.js");
+try {
+    tilemanger = require("./TileManager.js");
+    Utils = require("./TopoUtils.js");
+    window.$ = window.jQuery = require('../static/js/jquery-1.11.3.min.js');
+}
+catch(e) {
+    tilemanger = require("../src/TileManager.js");
+    Utils = require("../src/TopoUtils.js");
+    window.$ = window.jQuery = require('../static/js/jquery-1.11.3.min.js');
+}
+
 var long2tile = Utils.long2tile;
 var lat2tile = Utils.lat2tile;
 var title2lat = Utils.title2lat;
@@ -32,6 +44,14 @@ class CameraController {
     update() {
         this.theta += this.wx;
         this.phi += this.wy;
+        if (this.phi > 85 /180 *Math.PI)
+        {
+            this.phi = 85 /180 *Math.PI;
+        }
+        if (this.phi <  - 85 /180 *Math.PI)
+        {
+            this.phi = - 85 /180 *Math.PI;
+        }
         var rad = (EarthRadius + this.height) * ratio;
         this.camera.position.x = rad * Math.cos(this.theta) * Math.cos(this.phi);
         this.camera.position.y = rad * Math.sin(this.theta) * Math.cos(this.phi);
@@ -62,6 +82,10 @@ class CameraController {
         if (this.height > max_cam_height) {
             this.height = max_cam_height;
         }
+        if (k>0)
+            this.engine.zoomout();
+        else
+            this.engine.zoomin();
         this.needUpdateMap();
     }
 
@@ -79,7 +103,6 @@ class CameraController {
         var camera = this.camera;
         var _x = x / this.engine.w * 2 - 1;
         var _y = -( y / this.engine.h * 2 - 1);
-
         this.raycaster.setFromCamera(new THREE.Vector2(_x, _y), camera);
         var intersects = this.raycaster.intersectObjects(this.engine.scene.children);
         if (intersects.length == 0)
@@ -104,10 +127,18 @@ class CameraController {
         var DividePieces = Math.cos(ll.lat / 180 * Math.PI) * 2 * Math.PI
             * EarthRadius * ratio / PictureWidth;
         var Size = Math.floor(Math.log2(DividePieces)) ;
-        // console.log(`${PictureWidth} : ${DividePieces} ${Size}`);
         if (Size > max_zoom)
             return max_zoom;
         return Size;
+    }
+    debugimg() {
+        var d = this.engine.getMouseTile();
+        console.log(d);
+        if (d!=null)
+        {
+            var src = d.tile.material.uniforms.texture1.value.image.currentSrc
+            document.getElementById("debugimg").setAttribute("src",src);
+        }
     }
 
 }
@@ -181,6 +212,12 @@ class DJIMapEngine {
 
     }
 
+    zoomin() {
+        this.tm.zoomin();
+    }
+    zoomout(){
+        this.tm.zoomout();
+    }
 
     render() {
         if (this.mouseX > 2000 || this.mouseX < 0) {
@@ -197,10 +234,10 @@ class DJIMapEngine {
         var d = new Date();
         if (this.tm.loading)
         {
-            $("#status").html(`loading height : ${this.controller.height}`);
+            document.getElementById("status").innerHTML = (`loading height : ${this.controller.height}`);
         }
         else {
-            $("#status").html(`loaded  height : ${this.controller.height}`);
+            document.getElementById("status").innerHTML = ( `loaded  height : ${this.controller.height}`);
         }
 
     }
@@ -220,62 +257,25 @@ class DJIMapEngine {
         }, 100);
 
     }
+    getMouseLatLon() {
+        //console.log({x:this.mouseX,y:this.mouseY});
+        return this.controller.getMouseLatLon(this.mouseX,this.mouseY);
+    }
+    getMouseTile() {
+        var ll = this.getMouseLatLon();
+        if (ll!=null) {
+            var param = {
+                zoom : 20,
+                y: Utils.lat2tile(ll.lat,20),
+                x: Utils.long2tile(ll.lon,20)
+            };
+            return this.tm.find_mini_cover(param);
+        }
+        return null;
+    }
+
 }
 
-let engine = new DJIMapEngine(document.getElementById('container'),
-    window.innerWidth, window.innerHeight);
-DJIMapEngine.animate(engine);
 
-module.exports = engine;
+window.DJIMapEngine = DJIMapEngine;
 
-document.addEventListener('mousemove', function (event) {
-        engine.mouseX += (event.clientX - engine.w / 2) / 20.0;
-        engine.mouseY += (event.clientY - engine.h / 2) / 20.0;
-    }
-    , false);
-/*
-document.addEventListener('click', function (event) {
-    console.log(event);
-    var ll = engine.controller.getMouseLatLon(event.x, event.y);
-    if (ll != null) {
-        var param = Utils.latlon2param(ll,
-            engine.controller.autozoom(event.x, event.y));
-        console.log("param is");
-        console.log(param);
-        engine.tm.find_replace_cover(
-            param
-        );
-    }
-
-});
-*/
-document.addEventListener('keydown', function (event) {
-    //console.log(event.keyCode);
-    switch (event.keyCode) {
-        case 187:
-            engine.controller.zoom(-1);
-            break;
-        case 189:
-            engine.controller.zoom(1);
-            break;
-        case 39:
-            engine.controller.leftright(1);
-            break;
-        case 37:
-            engine.controller.leftright(-1);
-            break;
-        case 38:
-            engine.controller.updown(1);
-            break;
-        case 40:
-            engine.controller.updown(-1);
-            break;
-        case 84:
-            engine.controller.looksky();
-            break;
-        case 89:
-            engine.controller.lookback();
-            break;
-
-    }
-}, false);

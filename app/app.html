@@ -6,10 +6,17 @@
             top: 0;
             left: 0;
         }
+
         #status {
             position: fixed;
             bottom: 5%;
             left: 5%;
+        }
+
+        #mouseLatLon {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
         }
         #debugimg{
             position: fixed;
@@ -63,6 +70,7 @@ void main()
 }
 
 
+
 </script>
 <script type="x-shader/x-fragment" id="fragmentshader">
 #ifdef GL_ES
@@ -87,9 +95,62 @@ void main()
 }
 
 
+
 </script>
-<script src="../build/bundle.js"></script>
 <div id="screen_infor"></div>
 <div id="status">Loading</div>
+<div id="mouseLatLon">0,0</div>
+<img id="debugimg">img</img>
+<script src="../build/bundle.js"></script>
+<script>
+    'use strict';
+    let engine = new DJIMapEngine(document.getElementById('container'),
+            window.innerWidth, window.innerHeight);
+    DJIMapEngine.animate(engine);
+    document.addEventListener('mousemove', function (event) {
+        engine.mouseX = event.x ;
+        engine.mouseY = event.y ;
+        var coor = engine.getMouseLatLon();
+        var tile = engine.getMouseTile();
+        if (coor != null) {
+            document.getElementById('mouseLatLon').innerHTML = `mouse : ${coor.lat} ${coor.lon} tile x:${tile.param.x} y:${tile.param.y} zoom:${tile.param.zoom}`;
+        }
+    }
+    , false);
+
+document.addEventListener('keydown', function (event) {
+    //console.log(event.keyCode);
+    switch (event.keyCode) {
+        case 187:
+            engine.controller.zoom(-4);
+            break;
+        case 189:
+            engine.controller.zoom(4);
+            break;
+        case 39:
+            engine.controller.leftright(1);
+            break;
+        case 37:
+            engine.controller.leftright(-1);
+            break;
+        case 38:
+            engine.controller.updown(1);
+            break;
+        case 40:
+            engine.controller.updown(-1);
+            break;
+        case 84:
+            engine.controller.looksky();
+            break;
+        case 89:
+            engine.controller.lookback();
+            break;
+        case 68:
+            engine.controller.debugimg();
+            break;
+
+    }
+}, false);
+</script>
 </body>
 </html>
